@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Zellen-Quiz – Biologie 7m</title>
+<style>
+:root{
+  --bg:#f3f7f4; --card:#ffffff; --ink:#13241c; --muted:#4b5f55; --line:#c9d8cf;
+  --accent:#0F6E56; --accent-ink:#ffffff; --accent-soft:#dff1ea;
+  --ok:#17703a; --ok-bg:#dff3e5; --bad:#a82a22; --bad-bg:#fbe3e0;
+  color-scheme: light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e1914; --card:#16251e; --ink:#e9f3ed; --muted:#a7bdb1; --line:#2b4338;
+    --accent:#4fd1a5; --accent-ink:#06150f; --accent-soft:#1a3a2f;
+    --ok:#7fdc9f; --ok-bg:#153622; --bad:#ff9189; --bad-bg:#3a1b19;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0e1914; --card:#16251e; --ink:#e9f3ed; --muted:#a7bdb1; --line:#2b4338;
+  --accent:#4fd1a5; --accent-ink:#06150f; --accent-soft:#1a3a2f;
+  --ok:#7fdc9f; --ok-bg:#153622; --bad:#ff9189; --bad-bg:#3a1b19;
+  color-scheme: dark;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:border-box}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:Verdana,"Segoe UI",system-ui,-apple-system,sans-serif;
+  line-height:1.4; font-size:clamp(16px,1.2vw + 10px,22px);
+  touch-action:manipulation; -webkit-text-size-adjust:100%;
+}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible{outline:4px solid var(--accent);outline-offset:3px}
+.wrap{max-width:1100px;margin:0 auto;padding:12px 16px 32px}
+.hdr{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.brand{font-weight:700;font-size:1.1em}
+.hbtn{display:flex;gap:8px;flex-wrap:wrap}
+.ghost{background:transparent;border:2px solid var(--line);border-radius:12px;padding:8px 14px;min-height:46px}
+.ghost:hover{border-color:var(--accent)}
+.card{background:var(--card);border:2px solid var(--line);border-radius:20px;padding:clamp(14px,2.4vw,28px);margin-bottom:14px}
+.card h1{margin:0 0 6px;font-size:clamp(26px,3.4vw,44px);line-height:1.15}
+.card h2{margin:0 0 10px;font-size:1.15em}
+.card h3{margin:18px 0 8px;font-size:1em}
+.muted{color:var(--muted)}
+.center{text-align:center}
+.big{font-size:2em;font-weight:700;margin:.2em 0}
+.primary{background:var(--accent);color:var(--accent-ink);border:2px solid var(--accent);border-radius:16px;padding:14px 24px;min-height:58px;font-weight:700}
+.primary.wide{width:100%;font-size:1.2em;margin-top:18px}
+.seg{display:flex;flex-wrap:wrap;gap:8px}
+.seg button{flex:1 1 150px;min-height:58px;border:2px solid var(--line);background:var(--card);border-radius:14px;padding:10px 14px}
+.seg button[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft);font-weight:700;box-shadow:inset 0 0 0 2px var(--accent)}
+.seg button[aria-pressed="true"]::before{content:"✓ "}
+.names{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+input[type="text"]{font:inherit;padding:10px 12px;min-height:50px;width:100%;border:2px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink)}
+.prog{height:10px;background:var(--line);border-radius:6px;overflow:hidden;margin-bottom:12px}
+.prog>i{display:block;height:100%;background:var(--accent);transition:width .3s}
+.board{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.chip{flex:1 1 150px;border:2px solid var(--line);border-radius:14px;background:var(--card);padding:8px 12px;display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.chip.active{border-color:var(--accent);background:var(--accent-soft);box-shadow:inset 0 0 0 2px var(--accent)}
+.chip .sc{font-weight:700;font-size:1.3em}
+.chip small{color:var(--muted)}
+.turn{display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center;font-weight:700;margin-bottom:10px}
+.pill{display:inline-block;border:2px solid var(--line);border-radius:999px;padding:2px 14px;font-size:.8em;margin-bottom:10px}
+.qtext{font-size:clamp(22px,2.7vw,40px);font-weight:700;line-height:1.25;margin:0 0 16px}
+.item{background:var(--accent-soft);border-radius:10px;padding:0 10px}
+.clues{margin:0 0 14px;padding:0;list-style:none;display:grid;gap:8px}
+.clues li{padding:10px 14px;border-radius:12px;background:var(--accent-soft);border:2px solid var(--line);font-size:clamp(18px,2vw,28px)}
+.clues li b{margin-right:8px}
+.clues li.locked{border-style:dashed;background:transparent;color:var(--muted)}
+.opts{display:grid;gap:12px;grid-template-columns:1fr}
+@media (min-width:760px){
+  .opts.two{grid-template-columns:1fr 1fr}
+  .opts.three{grid-template-columns:repeat(3,1fr)}
+}
+.opt{display:flex;gap:12px;align-items:center;text-align:left;min-height:70px;padding:12px 16px;border:3px solid var(--line);border-radius:16px;background:var(--card);color:var(--ink);font-size:clamp(18px,2vw,28px)}
+.opt .l{flex:none;width:2em;height:2em;border-radius:50%;border:2px solid currentColor;display:grid;place-items:center;font-weight:700;font-size:.8em}
+.opt:hover:not(:disabled){border-color:var(--accent)}
+.opt:disabled{cursor:default;color:var(--ink)}
+.opt.ok{border-color:var(--ok);background:var(--ok-bg)}
+.opt.bad{border-color:var(--bad);background:var(--bad-bg)}
+.opt.out{opacity:.4;text-decoration:line-through}
+.mark{margin-left:auto;font-weight:700;font-size:1.2em}
+.fb{margin-top:14px;padding:14px 16px;border-radius:14px;border:2px solid var(--line);font-size:clamp(17px,1.8vw,26px)}
+.fb.ok{border-color:var(--ok);background:var(--ok-bg)}
+.fb.bad{border-color:var(--bad);background:var(--bad-bg)}
+.row{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px;align-items:center}
+.row .grow{flex:1}
+.rank{display:flex;gap:12px;align-items:center;padding:12px 14px;border:2px solid var(--line);border-radius:14px;margin-bottom:8px;font-size:1.2em}
+.rank .m{font-size:1.5em;min-width:1.8em;text-align:center}
+.rank .n{flex:1;font-weight:700}
+.review{margin:0;padding-left:1.2em}
+.review li{margin-bottom:10px}
+.foot{text-align:center;color:var(--muted);margin-top:18px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+(function(){
+"use strict";
+
+/* ---------- Fragen ---------- */
+var PT = ["Nur in Pflanzenzellen","Nur in Tierzellen","In beiden"];
+var DATA = [
+  /* Multiple Choice: erste Antwort ist richtig, wird gemischt */
+  {type:"mc", q:"Ein Auto bewegt sich, braucht Treibstoff und gibt Abgase ab. Warum ist es trotzdem kein Lebewesen?",
+   o:["Es wächst nicht von selbst, pflanzt sich nicht fort und hat keine Zellen.","Es hat Räder statt Beine.","Es gibt Abgase ab.","Es ist zu groß."],
+   e:"Stoffaufnahme und Stoffabgabe gibt es auch beim Auto. Aber ein Auto wächst nicht von selbst, pflanzt sich nicht fort und besteht nicht aus Zellen."},
+  {type:"mc", q:"Eine Venusfliegenfalle klappt zu, wenn ein Insekt ihre Fühlborsten berührt. Welches Kennzeichen des Lebendigen zeigt das?",
+   o:["Reizbarkeit","Fortpflanzung","Wachstum","Stoffwechsel"],
+   e:"Die Pflanze nimmt die Berührung als Reiz auf und reagiert darauf. Das nennt man Reizbarkeit."},
+  {type:"mc", q:"Welche dieser Zellen kannst du ohne Mikroskop sehen?",
+   o:["Der Dotter eines Vogeleis","Eine rote Blutzelle","Ein Bakterium","Eine Zelle der Mundschleimhaut"],
+   e:"Der Dotter ist die Eizelle des Vogels. Beim Strauß ist sie besonders groß. Die meisten anderen Zellen sind viel kleiner als 0,1 mm."},
+  {type:"mc", q:"Warum haben Nervenzellen sehr lange Fortsätze?",
+   o:["Sie leiten Signale über weite Strecken weiter.","Sie speichern damit Wasser.","Sie fangen damit Licht ein.","Sie halten sich damit am Gewebe fest."],
+   e:"Die Form passt zur Aufgabe: Lange Fortsätze bedeuten lange Wege für Signale."},
+  {type:"mc", q:"In welches Teil des Mikroskops schaust du hinein?",
+   o:["Okular","Objektiv","Objekttisch","Triebrad"],
+   e:"Das Okular sitzt oben, direkt am Auge. Das Objektiv sitzt weiter unten, nah am Präparat."},
+  {type:"mc", q:"Du beginnst zu mikroskopieren. Mit welchem Objektiv fängst du an?",
+   o:["Mit dem kleinsten, also mit der geringsten Vergrößerung.","Mit dem größten, also mit der stärksten Vergrößerung.","Mit dem, das gerade vorne steht. Das ist egal.","Ganz ohne Objektiv."],
+   e:"Bei kleiner Vergrößerung siehst du einen größeren Ausschnitt und findest dein Objekt leichter. Das starke Objektiv kommt dem Präparat sehr nah und kann es beschädigen."},
+  {type:"mc", q:"Warum muss ein Präparat im Lichtmikroskop sehr dünn sein?",
+   o:["Das Licht muss hindurchscheinen.","Es trocknet sonst zu langsam.","Es passt sonst nicht unter das Deckglas.","Es ist sonst zu teuer."],
+   e:"Das Licht kommt von unten und scheint durch das Objekt. Ist es zu dick, bleibt das Bild dunkel."},
+  {type:"mc", q:"Wie legst du das Deckglas auf den Wassertropfen, damit keine Luftblasen entstehen?",
+   o:["Schräg ansetzen und langsam absenken.","Von oben fest aufdrücken.","Schnell fallen lassen.","Ganz ohne Wasser auflegen."],
+   e:"Luftblasen sehen unter dem Mikroskop wie dunkle Ringe aus und stören das Bild."},
+  {type:"mc", q:"Warum färbt man ein Präparat an?",
+   o:["Damit Zellbestandteile wie der Zellkern besser sichtbar werden.","Damit das Deckglas besser klebt.","Damit die Zellen größer werden.","Damit das Licht heller wird."],
+   e:"Farbe macht kleine, durchsichtige Teile der Zelle besser sichtbar, zum Beispiel den Zellkern."},
+  {type:"mc", q:"Welche Aufgabe hat die große Vakuole in einer Pflanzenzelle?",
+   o:["Sie speichert Wasser und gelöste Stoffe.","Sie steuert die Vorgänge in der Zelle.","Sie stellt mit Licht Zucker her.","Sie umgibt die Zelle als feste Hülle."],
+   e:"In der Vakuole ist der Zellsaft. Er enthält Wasser und gelöste Stoffe."},
+  {type:"mc", q:"In Blättern sieht man viele grüne Chloroplasten. In der Zwiebelhaut findest du keine. Warum?",
+   o:["Die Zwiebel liegt im Boden. Ohne Licht ist keine Fotosynthese möglich.","Chloroplasten sind zu klein für das Mikroskop.","Zwiebelzellen haben keinen Zellkern.","Die Zwiebelhaut besteht aus Tierzellen."],
+   e:"Chloroplasten gibt es dort, wo die Pflanze Licht nutzt. Die Zwiebel wächst unter der Erde. Dort brauchen die Zellen keine Chloroplasten."},
+
+  /* Pflanze, Tier oder beides: a = Index in PT */
+  {type:"pt", item:"Zellwand", a:0, e:"Tierzellen haben keine Zellwand. Sie gibt Pflanzenzellen Form und Festigkeit."},
+  {type:"pt", item:"Zellkern", a:2, e:"Pflanzenzellen und Tierzellen haben einen Zellkern. Er steuert die Vorgänge in der Zelle."},
+  {type:"pt", item:"Chloroplasten", a:0, e:"Chloroplasten gibt es nur in Pflanzenzellen, und zwar in den grünen Teilen. Dort läuft die Fotosynthese ab."},
+  {type:"pt", item:"Zellmembran", a:2, e:"Jede Zelle hat eine Zellmembran. Sie umgibt das Zellplasma und lässt nur bestimmte Stoffe durch."},
+  {type:"pt", item:"Große Vakuole", a:0, e:"Typische Pflanzenzellen haben eine große Vakuole mit Zellsaft. Tierzellen haben höchstens sehr kleine."},
+
+  /* Wer bin ich: erste Antwort ist richtig, wird gemischt */
+  {type:"rd", clues:["Ich komme in Pflanzenzellen und in Tierzellen vor.","Meistens bin ich rund oder oval.","Eine Färbung macht mich unter dem Mikroskop gut sichtbar.","Ich steuere die Vorgänge in der Zelle."],
+   o:["Zellkern","Vakuole","Zellwand","Chloroplast"],
+   e:"Der Zellkern liegt im Zellplasma. Er steuert die Zelle und lässt sich gut anfärben."},
+  {type:"rd", clues:["Ich fehle in jeder Tierzelle.","Ich liege ganz außen, um die Zellmembran herum.","Ich gebe der Pflanzenzelle Form und Festigkeit.","Robert Hooke sah nur mich, als er Kork untersuchte."],
+   o:["Zellwand","Zellmembran","Zellkern","Vakuole"],
+   e:"Hooke sah im Kork nur die Zellwände. Die Zellen selbst waren schon tot."},
+  {type:"rd", clues:["Ich bin aus Glas und rechteckig.","Man legt einen Wassertropfen auf mich.","Auf mir liegt das Präparat.","Über mir liegt das Deckglas."],
+   o:["Objektträger","Deckglas","Objektiv","Okular"],
+   e:"Auf dem Objektträger liegt das Präparat im Wassertropfen. Das Deckglas kommt obendrauf."},
+  {type:"rd", clues:["Ich lebte im 17. Jahrhundert in England.","Ich habe dünne Scheiben von Kork untersucht.","Ich sah kleine Kammern und nannte sie „Zellen“.","Mein Vorname ist Robert."],
+   o:["Robert Hooke","Isaac Newton","Charles Darwin","Gregor Mendel"],
+   e:"Robert Hooke untersuchte 1665 Kork mit einem Mikroskop. Er prägte das Wort „Zelle“."},
+
+  /* Fakt oder Fake: a = true/false */
+  {type:"ff", q:"Alle Lebewesen bestehen aus Zellen.", a:true,
+   e:"Alle Lebewesen bestehen aus einer oder aus vielen Zellen."},
+  {type:"ff", q:"Ein Feuer wächst, bewegt sich und braucht Brennstoff. Darum ist es ein Lebewesen.", a:false,
+   e:"Ein Lebewesen muss alle Kennzeichen des Lebendigen zeigen. Feuer besteht nicht aus Zellen und pflanzt sich nicht fort."},
+  {type:"ff", q:"Die meisten Zellen sind so klein, dass man sie nur mit dem Mikroskop sieht.", a:true,
+   e:"Die meisten Zellen sind kleiner als 0,1 mm. Dafür braucht man ein Mikroskop."},
+  {type:"ff", q:"Im Lichtmikroskop steht das Bild auf dem Kopf und ist seitenverkehrt.", a:true,
+   e:"Die Linsen drehen das Bild um. Schiebst du das Präparat nach links, wandert das Bild nach rechts."},
+  {type:"ff", q:"Robert Hooke hat im Kork lebende Zellen gesehen.", a:false,
+   e:"Kork besteht aus toten Zellen. Hooke sah nur die Zellwände, die wie kleine Kammern aussehen."},
+  {type:"ff", q:"Alle Zellen im Körper haben dieselbe Form.", a:false,
+   e:"Die Form passt zur Aufgabe. Nervenzellen sind lang, rote Blutzellen sind klein und scheibenförmig."}
+];
+
+/* ---------- Hilfsfunktionen ---------- */
+function shuffle(a){var b=a.slice();for(var i=b.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=b[i];b[i]=b[j];b[j]=t;}return b;}
+function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c];});}
+
+function prep(d){
+  var o={type:d.type,e:d.e,clues:null};
+  if(d.type==="mc"){
+    o.label="Multiple Choice"; o.qh=esc(d.q); o.plain=d.q; o.cls="two";
+    o.opts=shuffle(d.o.map(function(t,i){return {t:t,ok:i===0};}));
+  } else if(d.type==="ff"){
+    o.label="Fakt oder Fake?"; o.qh=esc(d.q); o.plain=d.q; o.cls="two";
+    o.opts=[{t:"Fakt",ok:d.a===true},{t:"Fake",ok:d.a===false}];
+  } else if(d.type==="pt"){
+    o.label="Pflanze, Tier oder beides?"; o.qh="Wo findest du: <span class=\"item\">"+esc(d.item)+"</span>?";
+    o.plain="Wo findest du: "+d.item+"?"; o.cls="three";
+    o.opts=PT.map(function(t,i){return {t:t,ok:i===d.a};});
+  } else {
+    o.label="Wer oder was bin ich?"; o.qh="Errate den Begriff. Je weniger Hinweise du brauchst, desto mehr Punkte gibt es.";
+    o.plain="Rätsel: „"+d.clues[0]+"“ …"; o.cls="two"; o.clues=d.clues;
+    o.opts=shuffle(d.o.map(function(t,i){return {t:t,ok:i===0};}));
+  }
+  return o;
+}
+
+/* ---------- Zustand ---------- */
+var cfg={mode:"team",n:15,teams:3,names:["Team 1","Team 2","Team 3","Team 4"]};
+var S={screen:"start"};
+var app=document.getElementById("app");
+
+function startGame(){
+  var solo=cfg.mode==="solo";
+  var teams=solo?[{name:"Du",score:0,joker:2}]:
+    Array.apply(null,{length:cfg.teams}).map(function(_,i){
+      return {name:(cfg.names[i]||"").trim()||("Team "+(i+1)),score:0,joker:1};
+    });
+  var list=shuffle(DATA).slice(0,cfg.n).map(prep);
+  S={screen:"game",solo:solo,teams:teams,list:list,qi:0,streak:0,right:0,missed:[],cq:false};
+  loadQ();
+}
+function loadQ(){
+  S.q=S.list[S.qi];
+  S.opts=S.q.opts.map(function(o){return {t:o.t,ok:o.ok,out:false};});
+  S.answered=false; S.picked=-1; S.clue=1; S.last=null;
+  S.turn=S.qi%S.teams.length;
+}
+function points(){return S.q.clues?([12,9,6,3][S.clue-1]||3):10;}
+function correctText(){for(var i=0;i<S.opts.length;i++){if(S.opts[i].ok)return S.opts[i].t;}return "";}
+function canJoker(){
+  if(S.answered)return false;
+  if(S.teams[S.turn].joker<1)return false;
+  return S.opts.filter(function(o){return !o.ok&&!o.out;}).length>=3;
+}
+function useJoker(){
+  if(!canJoker())return;
+  var idx=[];S.opts.forEach(function(o,i){if(!o.ok&&!o.out)idx.push(i);});
+  shuffle(idx).slice(0,2).forEach(function(i){S.opts[i].out=true;});
+  S.teams[S.turn].joker--;
+}
+function moreClue(){if(S.answered||!S.q.clues||S.clue>=S.q.clues.length)return;S.clue++;}
+function answerIdx(i){
+  var o=S.opts[i];
+  if(S.answered||!o||o.out)return false;
+  S.answered=true;S.picked=i;
+  var gain=0,bonus=0;
+  if(o.ok){
+    gain=points();
+    if(S.solo){S.streak++;if(S.streak>=3)bonus=5;}
+    S.teams[S.turn].score+=gain+bonus;
+    S.right++;
+  } else {
+    if(S.solo)S.streak=0;
+    S.missed.push({q:S.q.plain,a:correctText()});
+  }
+  S.last={ok:o.ok,gain:gain,bonus:bonus};
+  return true;
+}
+function nextQ(){
+  if(!S.answered)return;
+  if(S.qi+1>=S.list.length){S.screen="end";return;}
+  S.qi++;loadQ();
+}
+
+/* ---------- Rendering ---------- */
+function hdr(game){
+  var quit=game?"<button class=\"ghost\" data-act=\"quit\">"+(S.cq?"Wirklich beenden? Nochmal tippen":"Beenden")+"</button>":"";
+  return "<div class=\"hdr\"><div class=\"brand\">🔬 Zellen-Quiz · Bio 7m</div><div class=\"hbtn\">"+quit+
+    "<button class=\"ghost\" data-act=\"theme\">◐ Hell/Dunkel</button></div></div>";
+}
+function seg(act,vals,cur,labels){
+  return "<div class=\"seg\" role=\"group\">"+vals.map(function(v,i){
+    return "<button data-act=\""+act+"\" data-v=\""+v+"\" aria-pressed=\""+(String(v)===String(cur))+"\">"+labels[i]+"</button>";
+  }).join("")+"</div>";
+}
+function renderStart(){
+  var team=cfg.mode==="team";
+  var h=hdr(false);
+  h+="<div class=\"card\"><h1>Zellen-Quiz</h1><p class=\"muted\">Zum Abschluss vor den Ferien: Was wisst ihr über Zellen und das Mikroskop?</p>";
+  h+="<h3>Wie wollt ihr spielen?</h3>"+seg("mode",["team","solo"],cfg.mode,["👥 Teams (vorne oder zu zweit)","📱 Allein auf dem iPad"]);
+  h+="<p class=\"muted\">"+(team?"Ein Team nach dem anderen ist dran. Besprecht euch kurz, dann tippt ein Teammitglied die Antwort.":"Du sammelst Punkte und baust eine Serie auf. Nach drei richtigen Antworten in Folge gibt es Bonuspunkte.")+"</p>";
+  h+="<h3>Wie viele Fragen?</h3>"+seg("n",[10,15,20],cfg.n,["10 Fragen","15 Fragen","20 Fragen"]);
+  if(team){
+    h+="<h3>Wie viele Teams?</h3>"+seg("teams",[2,3,4],cfg.teams,["2 Teams","3 Teams","4 Teams"]);
+    h+="<h3>Teamnamen</h3><div class=\"names\">";
+    for(var i=0;i<cfg.teams;i++){
+      h+="<input type=\"text\" maxlength=\"20\" aria-label=\"Name Team "+(i+1)+"\" data-name=\""+i+"\" value=\""+esc(cfg.names[i])+"\">";
+    }
+    h+="</div>";
+  }
+  h+="<button class=\"primary wide\" data-act=\"start\">Los geht’s ▶</button></div>";
+  h+="<p class=\"foot\">Fragen zu: Kennzeichen des Lebendigen, Zellentdeckung, Zellgröße und Zellform, Mikroskop, Präparat, Pflanzenzelle und Tierzelle</p>";
+  return h;
+}
+function renderGame(){
+  var q=S.q,t=S.teams[S.turn],n=S.list.length;
+  var done=S.qi+(S.answered?1:0);
+  var h=hdr(true);
+  h+="<div class=\"prog\" role=\"progressbar\" aria-label=\"Fortschritt\" aria-valuemin=\"0\" aria-valuemax=\""+n+"\" aria-valuenow=\""+done+"\"><i style=\"width:"+Math.round(done/n*100)+"%\"></i></div>";
+  h+="<div class=\"board\">";
+  if(S.solo){
+    h+="<div class=\"chip\"><span>Punkte</span><span class=\"sc\">"+t.score+"</span></div>";
+    h+="<div class=\"chip\"><span>Serie</span><span class=\"sc\">🔥 "+S.streak+"</span></div>";
+    h+="<div class=\"chip\"><span>Joker</span><span class=\"sc\">🃏 "+t.joker+"</span></div>";
+  } else {
+    S.teams.forEach(function(tm,i){
+      h+="<div class=\"chip"+(i===S.turn?" active":"")+"\"><span>"+(i===S.turn?"▶ ":"")+esc(tm.name)+" <small>🃏"+tm.joker+"</small></span><span class=\"sc\">"+tm.score+"</span></div>";
+    });
+  }
+  h+="</div>";
+  h+="<div class=\"card\">";
+  h+="<div class=\"turn\"><span>Frage "+(S.qi+1)+" von "+n+"</span>"+(S.solo?"":"<span>Dran: "+esc(t.name)+"</span>")+(S.answered?"":"<span>"+points()+" Punkte möglich</span>")+"</div>";
+  h+="<span class=\"pill\">"+q.label+"</span>";
+  h+="<p class=\"qtext\">"+q.qh+"</p>";
+  if(q.clues){
+    h+="<ol class=\"clues\" style=\"list-style:none\">";
+    q.clues.slice(0,S.clue).forEach(function(c,i){h+="<li><b>"+(i+1)+".</b>"+esc(c)+"</li>";});
+    var left=q.clues.length-S.clue;
+    if(left>0&&!S.answered)h+="<li class=\"locked\">🔒 Noch "+left+(left===1?" Hinweis":" Hinweise")+"</li>";
+    h+="</ol>";
+  }
+  h+="<div class=\"opts "+q.cls+"\">";
+  S.opts.forEach(function(o,i){
+    var c="opt",mark="",sr="";
+    if(S.answered){
+      if(o.ok){c+=" ok";mark="✓";sr=" (richtig)";}
+      else if(i===S.picked){c+=" bad";mark="✗";sr=" (falsch)";}
+    }
+    if(o.out)c+=" out";
+    h+="<button class=\""+c+"\" data-act=\"ans\" data-i=\""+i+"\""+((S.answered||o.out)?" disabled":"")+">"+
+       "<span class=\"l\">"+"ABCD".charAt(i)+"</span><span>"+esc(o.t)+"<span class=\"sr\">"+sr+"</span></span><span class=\"mark\" aria-hidden=\"true\">"+mark+"</span></button>";
+  });
+  h+="</div>";
+  if(S.answered){
+    var L=S.last,who=S.solo?"":" für "+esc(t.name);
+    if(L.ok){
+      h+="<div class=\"fb ok\" id=\"fb\" role=\"status\"><strong>✓ Richtig!</strong> +"+L.gain+" Punkte"+who+(L.bonus?" · 🔥 Serienbonus +"+L.bonus:"")+"<br>"+esc(q.e)+"</div>";
+    } else {
+      h+="<div class=\"fb bad\" id=\"fb\" role=\"status\"><strong>✗ Leider falsch.</strong> Richtig ist: <strong>"+esc(correctText())+"</strong><br>"+esc(q.e)+"</div>";
+    }
+  }
+  h+="<div class=\"row\">";
+  if(!S.answered){
+    if(q.clues&&S.clue<q.clues.length)h+="<button class=\"ghost\" data-act=\"clue\">💡 Nächster Hinweis (weniger Punkte)</button>";
+    if(canJoker())h+="<button class=\"ghost\" data-act=\"joker\">🃏 50:50 ("+t.joker+")</button>";
+  } else {
+    h+="<span class=\"grow\"></span><button class=\"primary\" data-act=\"next\">"+(S.qi+1>=n?"Zur Auswertung":"Weiter →")+"</button>";
+  }
+  h+="</div></div>";
+  return h;
+}
+function renderEnd(){
+  var n=S.list.length,h=hdr(false);
+  if(S.solo){
+    var t=S.teams[0],p=S.right/n;
+    var title=p>=0.9?"Zell-Profi 🔬":p>=0.7?"Mikroskop-Meister 🔎":p>=0.5?"Zellforscher 🌱":"Zell-Azubi 🌰";
+    h+="<div class=\"card center\"><h1>"+title+"</h1><p class=\"big\">"+t.score+" Punkte</p><p>"+S.right+" von "+n+" Fragen richtig</p></div>";
+  } else {
+    var max=Math.max.apply(null,S.teams.map(function(x){return x.score;}));
+    var win=S.teams.filter(function(x){return x.score===max;});
+    var head=win.length>1?"Gleichstand! 🤝":esc(win[0].name)+" gewinnt! 🏆";
+    h+="<div class=\"card\"><h1 class=\"center\">"+head+"</h1><div style=\"margin-top:14px\">";
+    S.teams.slice().sort(function(a,b){return b.score-a.score;}).forEach(function(x){
+      var rank=1+S.teams.filter(function(y){return y.score>x.score;}).length;
+      var m=["🥇","🥈","🥉"][rank-1]||(rank+".");
+      h+="<div class=\"rank\"><span class=\"m\">"+m+"</span><span class=\"n\">"+esc(x.name)+"</span><span>"+x.score+" Punkte</span></div>";
+    });
+    h+="</div></div>";
+  }
+  if(S.missed.length){
+    h+="<div class=\"card\"><h2>Das war knifflig – nochmal merken</h2><ul class=\"review\">";
+    S.missed.forEach(function(m){h+="<li><strong>"+esc(m.q)+"</strong><br>→ "+esc(m.a)+"</li>";});
+    h+="</ul></div>";
+  } else {
+    h+="<div class=\"card center\"><p>🎉 Keine einzige Frage falsch beantwortet!</p></div>";
+  }
+  h+="<div class=\"row\"><button class=\"primary\" data-act=\"start\">Nochmal spielen</button><button class=\"ghost\" data-act=\"home\">Zum Start</button></div>";
+  h+="<p class=\"foot\">Schöne Ferien! 🍂</p>";
+  return h;
+}
+function render(){
+  var body=S.screen==="start"?renderStart():S.screen==="game"?renderGame():renderEnd();
+  app.innerHTML="<div class=\"wrap\">"+body+"</div>";
+}
+function scrollFb(){
+  var el=document.getElementById("fb");
+  if(el&&el.scrollIntoView){
+    var rm=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    el.scrollIntoView({block:"nearest",behavior:rm?"auto":"smooth"});
+  }
+}
+function toggleTheme(){
+  var r=document.documentElement;
+  var cur=r.getAttribute("data-theme")||((window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches)?"dark":"light");
+  r.setAttribute("data-theme",cur==="dark"?"light":"dark");
+}
+
+/* ---------- Events ---------- */
+app.addEventListener("click",function(e){
+  var b=e.target.closest("[data-act]");
+  if(!b||b.disabled)return;
+  var a=b.getAttribute("data-act"),v=b.getAttribute("data-v");
+  if(a!=="quit"&&S.cq)S.cq=false;
+  if(a==="theme"){toggleTheme();return;}
+  if(a==="mode")cfg.mode=v;
+  else if(a==="n")cfg.n=+v;
+  else if(a==="teams")cfg.teams=+v;
+  else if(a==="start")startGame();
+  else if(a==="home")S={screen:"start"};
+  else if(a==="quit"){
+    if(S.cq){S={screen:"start"};}else{S.cq=true;}
+  }
+  else if(a==="ans"){answerIdx(+b.getAttribute("data-i"));render();scrollFb();return;}
+  else if(a==="joker")useJoker();
+  else if(a==="clue")moreClue();
+  else if(a==="next"){nextQ();render();window.scrollTo(0,0);return;}
+  render();
+  if(a==="start"||a==="home")window.scrollTo(0,0);
+});
+app.addEventListener("input",function(e){
+  var t=e.target;
+  if(t.matches&&t.matches("[data-name]"))cfg.names[+t.getAttribute("data-name")]=t.value;
+});
+document.addEventListener("keydown",function(e){
+  if(S.screen!=="game")return;
+  if(e.target&&e.target.matches&&e.target.matches("input"))return;
+  var k=(e.key||"").toLowerCase();
+  if(!S.answered){
+    var i=-1;
+    if(k.length===1&&"1234".indexOf(k)>-1)i=+k-1;
+    else if(k.length===1&&"abcd".indexOf(k)>-1)i=k.charCodeAt(0)-97;
+    if(i>=0&&i<S.opts.length){if(answerIdx(i)){render();scrollFb();}}
+  } else if(e.key==="ArrowRight"||(e.key==="Enter"&&e.target===document.body)){
+    nextQ();render();window.scrollTo(0,0);
+  }
+});
+
+render();
+})();
+</script>
+</body>
+</html>
